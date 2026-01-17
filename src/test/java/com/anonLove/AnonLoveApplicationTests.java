@@ -1,4 +1,4 @@
-package com.anonLove.anonLove;
+package com.anonLove;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

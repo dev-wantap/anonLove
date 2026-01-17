@@ -1,4 +1,4 @@
-package com.anonLove.anonLove;
+package com.anonLove;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
