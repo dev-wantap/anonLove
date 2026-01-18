@@ -9,15 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 
 @Slf4j
 @Component
 public class JwtTokenProvider {
 
-    private final Key key;
+    private final SecretKey key;
     private final long accessTokenValidity;
     private final long refreshTokenValidity;
 
@@ -43,30 +43,22 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + validity);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key)
                 .compact();
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return Long.parseLong(claims.getSubject());
-    }
-
-    public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token);
-            return true;
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return Long.parseLong(claims.getSubject());
         } catch (ExpiredJwtException e) {
             log.warn("Expired JWT token: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN, "Token expired");
@@ -82,6 +74,15 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN, "Token claims empty");
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            getUserIdFromToken(token);
+            return true;
+        } catch (CustomException e) {
+            return false;
         }
     }
 }
