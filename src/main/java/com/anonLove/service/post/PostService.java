@@ -65,7 +65,6 @@ public class PostService {
 
         boolean isMine = post.isAuthor(userId);
 
-        // 댓글 조회
         List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(postId);
         List<CommentResponse> commentResponses = comments.stream()
                 .map(comment -> CommentResponse.from(comment, userId))

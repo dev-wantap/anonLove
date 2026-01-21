@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -13,13 +14,17 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AiFilterClient {
-
+    // TODO: 이건 잘 몰라서 일단 RestTemplate으로 해놨는데 연결하는 분이 WebClient나 수정해주시길..
     private final RestTemplate restTemplate;
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
 
     public boolean checkToxic(String content) {
+        // URL이 설정되지 않았거나 기본값인 경우 통과 처리 (임시)
+        if (!StringUtils.hasText(aiServerUrl) || aiServerUrl.contains("localhost")) {
+            return false;
+        }
         try {
             String url = aiServerUrl + "/predict";
 
@@ -38,7 +43,7 @@ public class AiFilterClient {
             return false;
         } catch (Exception e) {
             log.error("AI Filter Error: ", e);
-            return false; // AI 서버 오류 시 필터링 안 함
+            return false;
         }
     }
 

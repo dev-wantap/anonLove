@@ -35,6 +35,7 @@ public class ChatService {
     private final UserRepository userRepository;
 
     @Transactional
+    // 채팅방 생성
     public CreateChatRoomResponse createChatRoom(CreateChatRoomRequest request, Long initiatorId) {
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -79,7 +80,7 @@ public class ChatService {
 
         return new CreateChatRoomResponse(savedRoom.getId());
     }
-
+    // 채팅 메시지 조회
     public Page<ChatMessageResponse> getChatMessages(Long roomId, Long lastMessageId,
                                                      Long userId, Pageable pageable) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
@@ -99,7 +100,7 @@ public class ChatService {
 
         return messages.map(ChatMessageResponse::from);
     }
-
+    // 사용자가 참여 중인 모든 채팅방 목록 조회
     public List<ChatRoomListResponse> getChatRoomList(Long userId) {
         List<ChatRoom> chatRooms = chatRoomRepository.findByParticipant(userId);
 
@@ -124,7 +125,7 @@ public class ChatService {
                 })
                 .collect(Collectors.toList());
     }
-
+    // 채팅 메시지 읽음 처리
     @Transactional
     public void markMessagesAsRead(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
@@ -133,9 +134,7 @@ public class ChatService {
         if (!chatRoom.isParticipant(userId)) {
             throw new CustomException(ErrorCode.NOT_CHAT_PARTICIPANT);
         }
-
-        // 상대방이 보낸 읽지 않은 메시지를 읽음 처리
-        // 실제로는 bulk update 쿼리 사용 권장
+        chatMessageRepository.markMessagesAsRead(roomId, userId);
         log.info("Messages marked as read: roomId={}, userId={}", roomId, userId);
     }
 }

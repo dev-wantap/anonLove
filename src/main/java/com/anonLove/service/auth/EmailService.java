@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
-
+    // OTP 전송 메서드
     public void sendOtp(String email, String otp) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

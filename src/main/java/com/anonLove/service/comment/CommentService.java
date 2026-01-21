@@ -33,22 +33,15 @@ public class CommentService {
 
     @Transactional
     public CreateCommentResponse createComment(Long postId, CreateCommentRequest request, Long userId) {
-        // TODO:
-        // 1. 입력 유효성 검사(request.getContent() null/빈문자열/최대길이)
-        // 2. 포스트 및 사용자 존재 여부 확인
-        // 3. 권한/차단 상태 확인(차단된 사용자라면 예외)
-        // 4. AI 필터 호출(비동기 또는 sync) + 장애처리(circuit breaker, timeout)
-        // 5. 필터 결과 저장
-        // 6. 댓글 저장 및 댓글 수 업데이트
-        // 7. 이벤트 발행(알림/검색 색인 등)
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // AI 필터링
-        boolean isFiltered = aiFilterClient.checkToxic(request.getContent());
+        // TODO: AI 필터링
+        // boolean isFiltered = aiFilterClient.checkToxic(request.getContent());
+        boolean isFiltered = false; // ai 안붙여서 일단 넘겨놨음
 
         Comment comment = Comment.builder()
                 .post(post)
@@ -64,7 +57,7 @@ public class CommentService {
 
         return CreateCommentResponse.from(savedComment);
     }
-
+    // 게시글별 댓글 조회
     public List<CommentResponse> getCommentsByPost(Long postId, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -85,8 +78,9 @@ public class CommentService {
             throw new CustomException(ErrorCode.NOT_COMMENT_AUTHOR);
         }
 
-        // AI 필터링 재검사
-        boolean isFiltered = aiFilterClient.checkToxic(request.getContent());
+        // TODO: AI 필터링 재검사
+        // boolean isFiltered = aiFilterClient.checkToxic(request.getContent());
+        boolean isFiltered = false;
 
         comment.update(request.getContent(), isFiltered);
 

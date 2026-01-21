@@ -23,21 +23,20 @@ public class JwtTokenProvider {
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access-token-validity}") long accessTokenValidity,
-            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity) {
+            @Value("${jwt.access-token-validity}") long accessTokenValidity, // 1시간
+            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity) { // 7일
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenValidity = accessTokenValidity;
         this.refreshTokenValidity = refreshTokenValidity;
     }
-
+    // 토큰 생성
     public String createAccessToken(Long userId) {
         return createToken(userId, accessTokenValidity);
     }
-
     public String createRefreshToken(Long userId) {
         return createToken(userId, refreshTokenValidity);
     }
-
+    // ID, 유효기간 포함된 토큰 생성
     private String createToken(Long userId, long validity) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validity);
@@ -49,7 +48,7 @@ public class JwtTokenProvider {
                 .signWith(key)
                 .compact();
     }
-
+    // 토큰에서 사용자 ID 추출
     public Long getUserIdFromToken(String token) {
         try {
             Claims claims = Jwts.parser()
@@ -76,7 +75,7 @@ public class JwtTokenProvider {
             throw new CustomException(ErrorCode.INVALID_TOKEN, "Token claims empty");
         }
     }
-
+    // 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
             getUserIdFromToken(token);
