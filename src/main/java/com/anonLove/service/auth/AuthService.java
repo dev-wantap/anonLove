@@ -4,6 +4,7 @@ import com.anonLove.dto.request.auth.LoginRequest;
 import com.anonLove.dto.request.auth.SignupRequest;
 import com.anonLove.dto.response.auth.LoginResponse;
 import com.anonLove.dto.response.auth.TokenResponse;
+import com.anonLove.dto.response.auth.UserResponse;
 import com.anonLove.exception.CustomException;
 import com.anonLove.exception.ErrorCode;
 import com.anonLove.repository.UserRepository;
@@ -36,6 +37,13 @@ public class AuthService {
     private static final String OTP_VERIFIED_PREFIX = "otp_verified:";
     private static final long OTP_EXPIRATION = 3;
     private static final long OTP_VERIFIED_EXPIRATION = 5;
+
+    public UserResponse getCurrentUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.from(user);
+    }
     // 이메일 인증 코드 전송
     @Transactional
     public void sendVerificationEmail(String email) {

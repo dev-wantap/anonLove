@@ -3,6 +3,7 @@ package com.anonLove.controller;
 import com.anonLove.dto.request.auth.*;
 import com.anonLove.dto.response.auth.LoginResponse;
 import com.anonLove.dto.response.auth.TokenResponse;
+import com.anonLove.dto.response.auth.UserResponse;
 import com.anonLove.security.CustomUserDetails;
 import com.anonLove.service.auth.AuthService;
 import jakarta.validation.Valid;
@@ -40,6 +41,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserResponse response = authService.getCurrentUser(userDetails.getUserId());
         return ResponseEntity.ok(response);
     }
 
