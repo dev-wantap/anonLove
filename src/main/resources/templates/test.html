@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AnonLove API Tester</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        input { margin: 5px 0; display: block; width: 300px; padding: 8px; }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        #log { background: #333; color: #fff; padding: 15px; height: 300px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h2>AnonLove API 임시 테스터</h2>
+
+<div class="section">
+    <h3>1. 인증 및 가입</h3>
+    <input id="email" type="text" placeholder="이메일" value="">
+    <input id="code" type="text" placeholder="인증번호">
+    <input id="nickname" type="text" placeholder="닉네임" value="익명1">
+    <input id="password" type="password" placeholder="비밀번호" value="password123!">
+    <button onclick="req('/auth/email/verify', 'POST', {email: v('email')})">인증메일 발송</button>
+    <button onclick="req('/auth/email/confirm', 'POST', {email: v('email'), code: v('code')})">번호 확인</button>
+    <button onclick="req('/auth/signup', 'POST', {email: v('email'), password: v('password'), nickname: v('nickname'), university: '서울대학교', gender: 'MALE'})">회원가입</button>
+</div>
+
+<div class="section">
+    <h3>2. 로그인 및 게시글</h3>
+    <button onclick="login()">로그인 (토큰 자동 저장)</button>
+    <button onclick="req('/posts?category=1&page=0&size=20', 'GET')">게시글 목록</button>
+    <button onclick="req('/posts', 'POST', {title:'테스트', content:'내용', category_id:1, visibility_type:'ALL', target_gender:'ALL'})">글쓰기</button>
+</div>
+
+<h3>결과 로그</h3>
+<div id="log">여기에 API 결과가 표시됩니다.</div>
+
+<script>
+    const BASE_URL = 'http://localhost:8080/api';
+    let token = '';
+
+    const v = (id) => document.getElementById(id).value;
+    const log = (msg) => {
+        const l = document.getElementById('log');
+        l.innerHTML = `[${new Date().toLocaleTimeString()}] ${JSON.stringify(msg, null, 2)}\n\n` + l.innerHTML;
+    };
+
+    async function req(path, method, body = null) {
+        const options = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (token) options.headers['Authorization'] = `Bearer ${token}`;
+        if (body) options.body = JSON.stringify(body);
+
+        try {
+            const res = await fetch(BASE_URL + path, options);
+            const data = await res.json();
+            if (data.accessToken) token = data.accessToken; // 로그인 시 토큰 자동 저장
+            log(data);
+        } catch (e) {
+            log({ error: e.message });
+        }
+    }
+
+    async function login() {
+        await req('/auth/login', 'POST', { email: v('email'), password: v('password') });
+    }
+</script>
+</body>
+</html>
