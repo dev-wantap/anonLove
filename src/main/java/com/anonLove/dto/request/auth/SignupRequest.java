@@ -23,6 +23,9 @@ public class SignupRequest {
     @NotBlank(message = "Nickname is required")
     private String nickname;
 
+    @NotBlank(message = "University is required")
+    private String university;
+
     @NotNull(message = "Gender is required")
     private Gender gender;
 }

@@ -2,10 +2,12 @@ package com.anonLove.service.chat;
 
 import com.anonLove.domain.chat.ChatMessage;
 import com.anonLove.domain.chat.ChatRoom;
+import com.anonLove.domain.chat.MessageType;
 import com.anonLove.domain.comment.Comment;
 import com.anonLove.domain.post.Post;
 import com.anonLove.domain.user.User;
 import com.anonLove.dto.request.chat.CreateChatRoomRequest;
+import com.anonLove.dto.request.chat.SendMessageRequest;
 import com.anonLove.dto.response.chat.ChatMessageResponse;
 import com.anonLove.dto.response.chat.ChatRoomListResponse;
 import com.anonLove.dto.response.chat.CreateChatRoomResponse;
@@ -54,7 +56,7 @@ public class ChatService {
         User receiver = userRepository.findById(request.getReceiverId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 중복 채팅방 확인 (OneToOne: 한 댓글당 하나의 채팅방)
+        // 중복 채팅방 확인
         if (chatRoomRepository.existsByCommentId(request.getCommentId())) {
             ChatRoom existingRoom = chatRoomRepository
                     .findByCommentId(request.getCommentId())
@@ -133,5 +135,29 @@ public class ChatService {
         }
         chatMessageRepository.markMessagesAsRead(roomId, userId);
         log.info("Messages marked as read: roomId={}, userId={}", roomId, userId);
+    }
+    // 채팅 메시지 저장
+    @Transactional
+    public ChatMessageResponse saveMessage(Long roomId, Long userId, SendMessageRequest request) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (!chatRoom.isParticipant(userId)) {
+            throw new CustomException(ErrorCode.NOT_CHAT_PARTICIPANT);
+        }
+
+        User sender = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        ChatMessage message = ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .messageType(MessageType.TEXT)
+                .content(request.getContent())
+                .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        return ChatMessageResponse.from(savedMessage);
     }
 }

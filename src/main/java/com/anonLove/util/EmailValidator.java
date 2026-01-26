@@ -13,8 +13,7 @@ public class EmailValidator {
     }
 
     public static String extractUniversity(String email) {
-        // example@snu.ac.kr -> Seoul National University
-        // example@university.edu -> University
+
         String domain = email.substring(email.indexOf('@') + 1);
         String universityPart = domain.split("\\.")[0];
         return capitalize(universityPart);

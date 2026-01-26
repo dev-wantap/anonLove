@@ -41,7 +41,7 @@ public class CommentService {
 
         // TODO: AI 필터링
         // boolean isFiltered = aiFilterClient.checkToxic(request.getContent());
-        boolean isFiltered = false; // ai 안붙여서 일단 넘겨놨음
+        boolean isFiltered = false;
 
         Comment comment = Comment.builder()
                 .post(post)

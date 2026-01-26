@@ -15,6 +15,14 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     // 채팅방별 메시지 조회 (최신순)
     Page<ChatMessage> findByChatRoomIdOrderByCreatedAtDesc(Long roomId, Pageable pageable);
 
+    // lastMessageId 이전 메시지 조회
+    @Query("SELECT m FROM ChatMessage m " +
+            "WHERE m.chatRoom.id = :roomId AND m.id < :lastMessageId " +
+            "ORDER BY m.id DESC")
+    Page<ChatMessage> findPreviousMessages(@Param("roomId") Long roomId,
+                                           @Param("lastMessageId") Long lastMessageId,
+                                           Pageable pageable);
+
     // lastMessageId 이후 메시지 조회
     @Query("SELECT m FROM ChatMessage m " +
             "WHERE m.chatRoom.id = :roomId AND m.id > :lastMessageId " +

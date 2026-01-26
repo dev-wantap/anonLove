@@ -99,13 +99,12 @@ public class AuthService {
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        String university = EmailValidator.extractUniversity(request.getEmail());
 
         User user = User.builder()
                 .email(request.getEmail())
                 .password(encodedPassword)
                 .nickname(request.getNickname())
-                .university(university)
+                .university(request.getUniversity())
                 .gender(request.getGender())
                 .build();
 
@@ -149,7 +148,6 @@ public class AuthService {
         return new TokenResponse(newAccessToken, newRefreshToken);
     }
     // 로그아웃 (리프레시 토큰 삭제)
-    @Transactional
     public void logout(Long userId) {
         tokenService.deleteRefreshToken(userId);
         log.info("User logged out: userId={}", userId);
