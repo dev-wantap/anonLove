@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    // 중복 채팅방 확인
-    boolean existsByPostIdAndCommentIdAndInitiatorId(Long postId, Long commentId, Long initiatorId);
+    // 댓글에 이미 채팅방이 있는지 확인 (OneToOne)
+    boolean existsByCommentId(Long commentId);
 
-    // 기존 채팅방 조회 (추가!)
-    Optional<ChatRoom> findByPostIdAndCommentIdAndInitiatorId(Long postId, Long commentId, Long initiatorId);
+    // 댓글의 채팅방 조회 (OneToOne)
+    Optional<ChatRoom> findByCommentId(Long commentId);
 
     // 사용자가 참여 중인 채팅방 목록
     @Query("SELECT cr FROM ChatRoom cr " +

@@ -54,13 +54,10 @@ public class ChatService {
         User receiver = userRepository.findById(request.getReceiverId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 중복 채팅방 확인
-        if (chatRoomRepository.existsByPostIdAndCommentIdAndInitiatorId(
-                request.getPostId(), request.getCommentId(), initiatorId)) {
-            // 기존 채팅방 반환
+        // 중복 채팅방 확인 (OneToOne: 한 댓글당 하나의 채팅방)
+        if (chatRoomRepository.existsByCommentId(request.getCommentId())) {
             ChatRoom existingRoom = chatRoomRepository
-                    .findByPostIdAndCommentIdAndInitiatorId(
-                            request.getPostId(), request.getCommentId(), initiatorId)
+                    .findByCommentId(request.getCommentId())
                     .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 
             return new CreateChatRoomResponse(existingRoom.getId());

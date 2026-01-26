@@ -24,8 +24,8 @@ public class ChatRoom extends BaseTimeEntity {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id", unique = true)
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
