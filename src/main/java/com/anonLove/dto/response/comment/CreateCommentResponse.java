@@ -4,16 +4,26 @@ import com.anonLove.domain.comment.Comment;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class CreateCommentResponse {
     private Long id;
+    private Long userId;
+    private String content;
     private boolean isFiltered;
+    private boolean isMine;
+    private LocalDateTime createdAt;
 
-    public static CreateCommentResponse from(Comment comment) {
+    public static CreateCommentResponse from(Comment comment, Long viewerId) {
         return CreateCommentResponse.builder()
                 .id(comment.getId())
+                .userId(comment.getUser().getId())
+                .content(comment.getContent())
                 .isFiltered(comment.isFiltered())
+                .isMine(comment.getUser().getId().equals(viewerId))
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 }

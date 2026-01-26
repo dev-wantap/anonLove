@@ -55,7 +55,7 @@ public class CommentService {
         log.info("Comment created: commentId={}, postId={}, isFiltered={}",
                 savedComment.getId(), postId, isFiltered);
 
-        return CreateCommentResponse.from(savedComment);
+        return CreateCommentResponse.from(savedComment, userId);
     }
     // 게시글별 댓글 조회
     public List<CommentResponse> getCommentsByPost(Long postId, Long viewerId) {
