@@ -261,10 +261,54 @@ ports:
 
 ### 보안
 
+**⚠️ 데이터베이스 SSL 설정 (중요)**
+
+docker-compose.yml의 `SPRING_DATASOURCE_URL`은 **개발용**으로 SSL이 비활성화되어 있습니다. 프로덕션에서는 반드시 SSL을 활성화하세요:
+
+**개발용 (현재 설정)**:
+```yaml
+SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/anonlove_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+```
+
+**프로덕션용**:
+```yaml
+SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/anonlove_db?useSSL=true&requireSSL=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+```
+
+**SSL 인증서 설정 방법**:
+
+1. **CA 서명 인증서 사용 (권장)**:
+```yaml
+# MySQL 컨테이너에 인증서 마운트
+mysql:
+  volumes:
+    - ./ssl/ca-cert.pem:/etc/mysql/ssl-ca-cert.pem:ro
+    - ./ssl/server-cert.pem:/etc/mysql/server-cert.pem:ro
+    - ./ssl/server-key.pem:/etc/mysql/server-key.pem:ro
+  environment:
+    - MYSQL_SSL_CA=/etc/mysql/ssl-ca-cert.pem
+    - MYSQL_SSL_CERT=/etc/mysql/server-cert.pem
+    - MYSQL_SSL_KEY=/etc/mysql/server-key.pem
+
+# Backend에 truststore 설정
+backend:
+  environment:
+  - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/anonlove_db?useSSL=true&requireSSL=true&trustCertificateKeyStoreUrl=file:/etc/ssl/mysql.jks&trustCertificateKeyStorePassword=password
+  volumes:
+    - ./ssl/mysql.jks:/etc/ssl/mysql.jks:ro
+```
+
+2. **AWS RDS/Aurora 사용 시**:
+```yaml
+# AWS RDS는 기본적으로 SSL CA 제공
+SPRING_DATASOURCE_URL=jdbc:mysql://your-db.rds.amazonaws.com:3306/anonlove_db?useSSL=true&requireSSL=true
+```
+
+**기타 보안 사항**:
 - **환경 변수 암호화**: Docker Secrets 또는 외부 시크릿 매니저 사용
 - **HTTPS/TLS**: Nginx 역프록시 또는 로드밸런서에서 설정
 - **CORS**: 프론트엔드 도메인만 허용하도록 설정
-- **DB 비밀번호**: 강력한 비밀번호 사용
+- **DB 비밀번호**: 강력한 비밀번호 사용 (최소 16자, 영문+숫자+특수문자)
 
 ### JVM 튜닝
 
