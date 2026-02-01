@@ -16,6 +16,9 @@ RUN ./gradlew bootJar --no-daemon
 # Stage 2: RUNTIME - Run the application
 FROM eclipse-temurin:17-jre
 
+# Install netcat for healthcheck
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copy JAR from builder stage

@@ -22,6 +22,12 @@ gradlew.bat
 !README.md
 CLAUDE.md
 
+# Environment files (security)
+.env
+.env.*
+.env.local
+.env.*.local
+
 # Test
 src/test/
 

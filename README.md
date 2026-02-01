@@ -64,9 +64,9 @@ docker-compose ps
 
 서비스가 시작되면 다음 주소로 접속할 수 있습니다:
 
-- **Backend API**: http://localhost:8080
-- **MySQL**: localhost:3306
-- **Redis**: localhost:6379
+- **Backend API**: `http://localhost:8080`
+- **MySQL**: `localhost:3306`
+- **Redis**: `localhost:6379`
 
 ---
 
@@ -127,7 +127,7 @@ DOCKER_BUILDKIT=1 docker build -t anonlove-backend:latest .
 모든 서비스는 `anonlove-network`라는 bridge 네트워크에서 통신합니다:
 
 | 방향 | 호스트 |
-|------|-------|
+| --- | --- |
 | backend → mysql | `mysql:3306` |
 | backend → redis | `redis:6379` |
 | host → backend | `localhost:8080` |
